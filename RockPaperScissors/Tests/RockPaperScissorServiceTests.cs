@@ -12,14 +12,13 @@ namespace RockPaperScissors.Tests
     {
         private readonly RockPaperScissorService _rockPaperScissorService;
         private readonly Mock<ITurnService> _turnServiceMock = new Mock<ITurnService>();
-        private readonly StrategyGuideRepository _strategyGuideRepository = new();
 
         private readonly Player player = new() { Name = "Player" };
         private readonly Player opponent = new() { Name = "Opponent" };
 
         public RockPaperScissorServiceTests()
         {
-            _rockPaperScissorService = new RockPaperScissorService(_turnServiceMock.Object, _strategyGuideRepository);
+            _rockPaperScissorService = new RockPaperScissorService(_turnServiceMock.Object);
         }
 
         [Theory]

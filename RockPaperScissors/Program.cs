@@ -9,10 +9,9 @@ namespace RockPaperScissors
     {
         private static void Main()
         {
-            StrategyGuideRepository _strategyGuideRepository = new StrategyGuideRepository();
             IShapeService _shapeService = new ShapeService();
             ITurnService _turnService = new TurnService(_shapeService);
-            IRockPaperScissorService _rockPaperScissorService = new RockPaperScissorService(_turnService, _strategyGuideRepository);
+            IRockPaperScissorService _rockPaperScissorService = new RockPaperScissorService(_turnService);
 
             var player = new Player
             {

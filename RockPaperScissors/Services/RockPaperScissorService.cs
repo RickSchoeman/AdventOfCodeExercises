@@ -7,12 +7,11 @@ namespace RockPaperScissors.Services
     public class RockPaperScissorService : IRockPaperScissorService
     {
         private readonly ITurnService _turnService;
-        private readonly StrategyGuideRepository _strategyGuideRepository;
+        private readonly StrategyGuideRepository _strategyGuideRepository = new();
 
-        public RockPaperScissorService(ITurnService turnService, StrategyGuideRepository strategyGuideRepository)
+        public RockPaperScissorService(ITurnService turnService)
         {
             _turnService = turnService;
-            _strategyGuideRepository = strategyGuideRepository;
         }
 
         public int CalculateScoreFromGame(Player you, Player opponent, bool newMethod)
