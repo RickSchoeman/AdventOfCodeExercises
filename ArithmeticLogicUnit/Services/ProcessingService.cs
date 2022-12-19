@@ -1,11 +1,6 @@
 ﻿using ArithmeticLogicUnit.Interfaces;
 using ArithmeticLogicUnit.Models;
 using ArithmeticLogicUnit.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ArithmeticLogicUnit.Services
 {
@@ -19,17 +14,49 @@ namespace ArithmeticLogicUnit.Services
             _instructionService = instructionService;
         }
 
-        public void ProcessCommands(out ProcessingVariables processingVariables)
+        public ProcessingVariables ProcessCommands(ProcessingVariables processingVariables)
         {
             var commands = _commandsRepository.GetCommands();
 
-            foreach(var command in commands)
+            foreach (var command in commands)
             {
                 var valuesFromCommand = GetValuesFromCommand(command);
-                var method = _instructionService.de
+                var method = _instructionService.DetermineInstructionMethod(valuesFromCommand.Item1);
+                var variableToChange = DetermineVariable(valuesFromCommand.Item2);
+                var aValue = DetermineInputValue(valuesFromCommand.Item2, processingVariables);
+                var bValue = DetermineInputValue(valuesFromCommand.Item3, processingVariables);
+
+                var newValue = _instructionService.ExecuteInstruction(aValue, bValue, method);
+
+                processingVariables = UpdateVariable(variableToChange, newValue, processingVariables);
             }
 
-            processingVariables = new ProcessingVariables();
+            return processingVariables;
+        }
+
+        private static ProcessingVariables UpdateVariable(Enums.Variable variableToChange, int newValue, ProcessingVariables processingVariables)
+        {
+            switch (variableToChange)
+            {
+                case (Enums.Variable.W):
+                    processingVariables.W = newValue;
+                    return processingVariables;
+
+                case (Enums.Variable.X):
+                    processingVariables.X = newValue;
+                    return processingVariables;
+
+                case (Enums.Variable.Y):
+                    processingVariables.Y = newValue;
+                    return processingVariables;
+
+                case (Enums.Variable.Z):
+                    processingVariables.Z = newValue;
+                    return processingVariables;
+
+                default:
+                    return processingVariables;
+            }
         }
 
         private static Enums.Variable DetermineVariable(char input) => input switch
