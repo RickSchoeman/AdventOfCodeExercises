@@ -32,7 +32,7 @@ namespace RockPaperScissors
 
             var scorePartTwo = _rockPaperScissorService.CalculateScoreFromGame(player, opponent, true);
 
-            Console.WriteLine("Part 1: The score calculation if X=Lose,Y=Draw,Z=Win:");
+            Console.WriteLine("Part 2: The score calculation if X=Lose,Y=Draw,Z=Win:");
             Console.WriteLine(scorePartTwo);
 
             Console.ReadLine();
