@@ -1,6 +1,5 @@
 ﻿using RockPaperScissors.Interfaces;
 using RockPaperScissors.Models;
-using RockPaperScissors.Repositories;
 using RockPaperScissors.Services;
 
 namespace RockPaperScissors
