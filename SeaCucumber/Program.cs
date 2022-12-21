@@ -12,7 +12,7 @@ namespace SeaCucumberShuffle
             ISeaCucumberService _seaCucumberService = new SeaCucumberService();
             IMovementService _movementService = new MovementService(_seaCucumberService);
 
-            var turns = _movementService.NewMethod();
+            var turns = _movementService.DetermineWhenMovementStops();
             Console.WriteLine(turns);
 /*            foreach(var turn in turns)
             {
