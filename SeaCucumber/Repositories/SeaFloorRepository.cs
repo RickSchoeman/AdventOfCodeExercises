@@ -6,7 +6,7 @@ namespace SeaCucumberShuffle.Repositories
     {
         public SeaFloor GetSeaFloor()
         {
-            var allLines = File.ReadLines("Data/SeaFloor.txt");
+            var allLines = File.ReadLines("Data/TestArea.txt");
 
             var height = allLines.Count();
             var width = allLines.First().Length;

@@ -28,7 +28,7 @@ namespace SeaCucumberShuffle.Services
 
             do
             {
-                seaCucumbers.SetValue(x => x.HasMoved = false);
+                seaCucumbers.SetValue(x => x.IsAllowedToMove = false);
 
                 var seaCucumbersAfterEastMovement = CalculateMovement(seaCucumbers, height, width, Enums.SeaCucumberType.EastFacing);
 
@@ -36,7 +36,7 @@ namespace SeaCucumberShuffle.Services
 
                 seaCucumbers = seaCucumbersAfterSouthMovement;
 
-                stoppedMoving = !seaCucumbers.Any(x => x.HasMoved);
+                stoppedMoving = !seaCucumbers.Any(x => x.IsAllowedToMove);
 
                 if (!stoppedMoving)
                 {
@@ -47,6 +47,162 @@ namespace SeaCucumberShuffle.Services
 
             return turn - 1;
         }
+
+
+        public int DifferentCalculation()
+        {
+            var seaFloor = _seaFloorRepository.GetSeaFloor();
+            int height = seaFloor.Height;
+            int width = seaFloor.Width;
+            var seaCucumbers = _seaCucumberService.GetAllSeaCucumbers();
+
+            var isAllowedToMove = true;
+            var turn = 0;
+            do
+            {
+                var cucumbersAfterTurn = new List<SeaCucumber>();
+                //Set all the EAST ones that may move to IsAllowedToMove = true
+                foreach (var column in GetRow(seaCucumbers, height))
+                {
+                    foreach (var seaCucumber in GetCucumbersFromRow(column))
+                    {
+                        if (seaCucumber.Type != Enums.SeaCucumberType.EastFacing)
+                        {
+                            cucumbersAfterTurn.Add(seaCucumber);
+                            continue;
+                        }
+
+                        int destinationCol = (seaCucumber.XCoordinate + 1) <= height ? (seaCucumber.XCoordinate + 1) : 1;
+                        int destinationRow = seaCucumber.YCoordinate;
+                        var destinationCucumber = GetCucumber(column, destinationRow, destinationCol);
+
+                        if (destinationCucumber.Type == Enums.SeaCucumberType.Empty)
+                        {
+                            seaCucumber.IsAllowedToMove = true;
+                        }
+                        cucumbersAfterTurn.Add(seaCucumber);
+                    }
+                }
+
+                //Set all the SOUTH ones that may move to IsAllowedToMove = true
+                foreach (var column in GetColumn(seaCucumbers, width))
+                {
+                    foreach (var seaCucumber in GetCucumbersFromColumn(column))
+                    {
+                        if (seaCucumber.Type != Enums.SeaCucumberType.SouthFacing)
+                        {
+                            cucumbersAfterTurn.Add(seaCucumber);
+                            continue;
+                        }
+
+                        int destinationCol = seaCucumber.XCoordinate;
+                        int destinationRow = (seaCucumber.YCoordinate + 1) <= height ? (seaCucumber.YCoordinate + 1) : 1;
+                        var destinationCucumber = GetCucumber(column, destinationRow, destinationCol);
+
+                        if (destinationCucumber.Type == Enums.SeaCucumberType.Empty)
+                        {
+                            seaCucumber.IsAllowedToMove = true;
+                        }
+                        cucumbersAfterTurn.Add(seaCucumber);
+                    }
+                }
+
+                isAllowedToMove = cucumbersAfterTurn.Any(x => x.IsAllowedToMove);
+
+                var cucumbersAfterMove = new List<SeaCucumber>();
+
+                //Move all the EAST ones that IsAllowedToMove = true
+                foreach (var column in GetRow(cucumbersAfterTurn, height))
+                {
+                    foreach (var seaCucumber in GetCucumbersFromRow(column))
+                    {
+                        if (seaCucumber.Type != Enums.SeaCucumberType.EastFacing)
+                        {
+                            cucumbersAfterMove.Add(seaCucumber);
+                            continue;
+                        }
+
+                        int destinationCol = (seaCucumber.XCoordinate + 1) <= height ? (seaCucumber.XCoordinate + 1) : 1;
+                        int destinationRow = seaCucumber.YCoordinate;
+                        var destinationCucumber = GetCucumber(column, destinationRow, destinationCol);
+
+                        seaCucumber.Type = Enums.SeaCucumberType.Empty;
+                        seaCucumber.IsAllowedToMove = false;
+                        destinationCucumber.Type = Enums.SeaCucumberType.EastFacing;
+
+                        cucumbersAfterMove.Add(destinationCucumber);
+                        cucumbersAfterMove.Add(seaCucumber);
+                    }
+                }
+
+                //Move all the SOUTH ones that IsAllowedToMove = true
+                foreach (var column in GetColumn(cucumbersAfterTurn, width))
+                {
+                    foreach (var seaCucumber in GetCucumbersFromColumn(column))
+                    {
+                        if (seaCucumber.Type != Enums.SeaCucumberType.SouthFacing)
+                        {
+                            cucumbersAfterMove.Add(seaCucumber);
+                            continue;
+                        }
+
+                        int destinationCol = seaCucumber.XCoordinate;
+                        int destinationRow = (seaCucumber.YCoordinate + 1) <= height ? (seaCucumber.YCoordinate + 1) : 1;
+                        var destinationCucumber = GetCucumber(column, destinationRow, destinationCol);
+
+                        seaCucumber.Type = Enums.SeaCucumberType.Empty;
+                        seaCucumber.IsAllowedToMove = false;
+                        destinationCucumber.Type = Enums.SeaCucumberType.SouthFacing;
+
+                        cucumbersAfterMove.Add(destinationCucumber);
+                        cucumbersAfterMove.Add(seaCucumber);
+                    }
+                }
+
+                seaCucumbers = cucumbersAfterMove;
+                turn++;
+            }
+            while (isAllowedToMove);
+
+            return turn;
+        }
+
+        private static SeaCucumber GetCucumber(List<SeaCucumber> seaCucumbers, int row, int column) => seaCucumbers.Single(x => x.YCoordinate == row && x.XCoordinate == column);
+
+        private static IEnumerable<List<SeaCucumber>> GetRow(List<SeaCucumber> allCucumbers, int height)
+        {
+            for(var i = 1; i <= height; i++)
+            {
+                yield return allCucumbers.Where(x => x.YCoordinate == i).ToList();
+            }
+        }
+
+        private static IEnumerable<SeaCucumber> GetCucumbersFromRow(List<SeaCucumber> seaCucumbers)
+        {
+            var length = seaCucumbers.Count;
+            for (var i = 1; i <= length; i++)
+            {
+                yield return seaCucumbers.Single(x => x.XCoordinate == i);
+            }
+        }
+
+        private static IEnumerable<List<SeaCucumber>> GetColumn(List<SeaCucumber> allCucumbers, int width)
+        {
+            for (var i = 1; i <= width; i++)
+            {
+                yield return allCucumbers.Where(x => x.XCoordinate == i).ToList();
+            }
+        }
+
+        private static IEnumerable<SeaCucumber> GetCucumbersFromColumn(List<SeaCucumber> seaCucumbers)
+        {
+            var length = seaCucumbers.Count;
+            for (var i = 1; i <= length; i++)
+            {
+                yield return seaCucumbers.Single(x => x.YCoordinate == i);
+            }
+        }
+
 
         private List<SeaCucumber> CalculateMovement(List<SeaCucumber> seaCucumbers, int height, int width, Enums.SeaCucumberType typeToCheck)
         {
@@ -61,7 +217,7 @@ namespace SeaCucumberShuffle.Services
                         continue;
                     }
 
-                    if (typeToCheck == Enums.SeaCucumberType.EastFacing && !selectedSeaCucumber.HasMoved)
+                    if (typeToCheck == Enums.SeaCucumberType.EastFacing && !selectedSeaCucumber.IsAllowedToMove)
                     {
                         var newXCoordinate = selectedSeaCucumber.XCoordinate + 1;
 
@@ -74,10 +230,10 @@ namespace SeaCucumberShuffle.Services
                         {
                             seaCucumbers.Where(sc => sc.XCoordinate == selectedSeaCucumber.XCoordinate && sc.YCoordinate == selectedSeaCucumber.YCoordinate && sc.Type == typeToCheck).SetValue(sc => sc.Type = Enums.SeaCucumberType.Empty);
                             seaCucumbers.Where(sc => sc.XCoordinate == newXCoordinate && sc.YCoordinate == selectedSeaCucumber.YCoordinate).SetValue(sc => sc.Type = typeToCheck);
-                            seaCucumbers.Where(sc => sc.XCoordinate == newXCoordinate && sc.YCoordinate == selectedSeaCucumber.YCoordinate).SetValue(sc => sc.HasMoved = true);
+                            seaCucumbers.Where(sc => sc.XCoordinate == newXCoordinate && sc.YCoordinate == selectedSeaCucumber.YCoordinate).SetValue(sc => sc.IsAllowedToMove = true);
                         }
                     }
-                    else if ((typeToCheck == Enums.SeaCucumberType.SouthFacing && !selectedSeaCucumber.HasMoved))
+                    else if ((typeToCheck == Enums.SeaCucumberType.SouthFacing && !selectedSeaCucumber.IsAllowedToMove))
                     {
                         var newYCoordinate = selectedSeaCucumber.YCoordinate + 1;
 
@@ -90,7 +246,7 @@ namespace SeaCucumberShuffle.Services
                         {
                             seaCucumbers.Where(sc => sc.XCoordinate == selectedSeaCucumber.XCoordinate && sc.YCoordinate == selectedSeaCucumber.YCoordinate && sc.Type == typeToCheck).SetValue(sc => sc.Type = Enums.SeaCucumberType.Empty);
                             seaCucumbers.Where(sc => sc.XCoordinate == selectedSeaCucumber.XCoordinate && sc.YCoordinate == newYCoordinate).SetValue(sc => sc.Type = typeToCheck);
-                            seaCucumbers.Where(sc => sc.XCoordinate == selectedSeaCucumber.XCoordinate && sc.YCoordinate == newYCoordinate).SetValue(sc => sc.HasMoved = true);
+                            seaCucumbers.Where(sc => sc.XCoordinate == selectedSeaCucumber.XCoordinate && sc.YCoordinate == newYCoordinate).SetValue(sc => sc.IsAllowedToMove = true);
                         }
                     }
                 }

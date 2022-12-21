@@ -28,7 +28,7 @@ namespace SeaCucumberShuffle.Services
                         XCoordinate = x + 1,
                         YCoordinate = y + 1,
                         Type = seaCucumberType,
-                        HasMoved = false,
+                        IsAllowedToMove = false,
                     });
                 }
             }

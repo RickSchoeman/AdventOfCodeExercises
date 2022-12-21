@@ -10,8 +10,9 @@ namespace SeaCucumberShuffle
             ISeaCucumberService _seaCucumberService = new SeaCucumberService();
             IMovementService _movementService = new MovementService(_seaCucumberService);
 
-            var turns = _movementService.DetermineWhenMovementStops();
-            Console.WriteLine(turns);
+            //var turns = _movementService.DetermineWhenMovementStops();
+            var x = _movementService.DifferentCalculation();
+
             /*            foreach(var turn in turns)
                         {
                             Console.WriteLine($"X={turn.XCoordinate}Y={turn.YCoordinate}Type={turn.Type}");

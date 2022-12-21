@@ -3,5 +3,6 @@
     public interface IMovementService
     {
         int DetermineWhenMovementStops();
+        int DifferentCalculation();
     }
 }
