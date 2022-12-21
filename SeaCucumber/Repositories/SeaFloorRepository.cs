@@ -1,9 +1,4 @@
 ﻿using SeaCucumberShuffle.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SeaCucumberShuffle.Repositories
 {
@@ -17,6 +12,6 @@ namespace SeaCucumberShuffle.Repositories
             var width = allLines.First().Length;
 
             return new SeaFloor { Layout = allLines, Height = height, Width = width };
-        } 
+        }
     }
 }
