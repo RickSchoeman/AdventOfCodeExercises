@@ -11,8 +11,14 @@ namespace ArithmeticLogicUnit
             IProcessingService _processingService = new ProcessingService(_instructionService);
             IMonadService _monadService = new MonadService(_processingService);
 
-            //Part 1: 39924989499969
-            //Part 2: 16811412161117
+            //
+            //
+            //      I tried it for a while but my code does not seem to work and i couldn't figure out why,
+            //      when debugging it seemed that sometimes my values were not written to the object,
+            //      maybe some synchronous performance issue
+            //
+            //
+            //
 
             var largestModelNumber = _monadService.DetermineLargestModelNumber(39924989499969); //Reduced the amount to save calculating space
 
