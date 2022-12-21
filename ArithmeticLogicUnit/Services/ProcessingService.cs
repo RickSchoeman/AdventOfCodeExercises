@@ -4,7 +4,7 @@ using ArithmeticLogicUnit.Repositories;
 
 namespace ArithmeticLogicUnit.Services
 {
-    public class ProcessingService
+    public class ProcessingService : IProcessingService
     {
         private readonly IInstructionService _instructionService;
         private readonly CommandsRepository _commandsRepository = new();
@@ -14,10 +14,10 @@ namespace ArithmeticLogicUnit.Services
             _instructionService = instructionService;
         }
 
-        public ProcessingVariables ProcessCommands(ProcessingVariables processingVariables)
+        public ProcessingVariables ProcessCommands(ProcessingVariables processingVariables, string monadInput)
         {
             var commands = _commandsRepository.GetCommands();
-
+            var inputNumber = 0;
             foreach (var command in commands)
             {
                 var valuesFromCommand = GetValuesFromCommand(command);
@@ -26,7 +26,17 @@ namespace ArithmeticLogicUnit.Services
                 var aValue = DetermineInputValue(valuesFromCommand.Item2, processingVariables);
                 var bValue = DetermineInputValue(valuesFromCommand.Item3, processingVariables);
 
-                var newValue = _instructionService.ExecuteInstruction(aValue, bValue, method);
+                int newValue;
+                if (method == Enums.InstructionMethod.Inp)
+                {
+                    var inputValue = (int)char.GetNumericValue(monadInput[inputNumber]);
+                    newValue = _instructionService.ExecuteInstruction(inputValue, 0, method);
+                    inputNumber++;
+                }
+                else
+                {
+                    newValue = _instructionService.ExecuteInstruction(aValue, bValue, method);
+                }
 
                 processingVariables = UpdateVariable(variableToChange, newValue, processingVariables);
             }
@@ -59,31 +69,36 @@ namespace ArithmeticLogicUnit.Services
             }
         }
 
-        private static Enums.Variable DetermineVariable(char input) => input switch
+        private static Enums.Variable DetermineVariable(string input) => input switch
         {
-            'w' => Enums.Variable.W,
-            'x' => Enums.Variable.X,
-            'y' => Enums.Variable.Y,
-            'z' => Enums.Variable.Z,
+            "w" => Enums.Variable.W,
+            "x" => Enums.Variable.X,
+            "y" => Enums.Variable.Y,
+            "z" => Enums.Variable.Z,
             _ => Enums.Variable.None,
         };
 
-        private static int DetermineInputValue(char input, ProcessingVariables processingVariables) => input switch
+        private static int DetermineInputValue(string input, ProcessingVariables processingVariables) => input switch
         {
-            'w' => processingVariables.W,
-            'x' => processingVariables.X,
-            'y' => processingVariables.Y,
-            'z' => processingVariables.Z,
-            _ => (int)char.GetNumericValue(input),
+            "w" => processingVariables.W,
+            "x" => processingVariables.X,
+            "y" => processingVariables.Y,
+            "z" => processingVariables.Z,
+            _ => int.TryParse(input, out int number) ? number : 0,
         };
 
-        private static (string, char, char) GetValuesFromCommand(string commandLine)
+        private static (string, string, string) GetValuesFromCommand(string commandLine)
         {
             var valuesFromCommand = commandLine.Split(' ');
 
             var command = valuesFromCommand[0];
-            _ = char.TryParse(valuesFromCommand[1], out char aValue);
-            _ = char.TryParse(valuesFromCommand[2], out char bValue);
+            var aValue = valuesFromCommand[1];
+
+            string bValue = string.Empty;
+            if(valuesFromCommand.Length > 2)
+            {
+                bValue = valuesFromCommand[2];
+            }
 
             return (command, aValue, bValue);
         }
