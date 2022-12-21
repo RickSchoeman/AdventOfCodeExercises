@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RockPaperScissors", "RockPa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArithmeticLogicUnit", "ArithmeticLogicUnit\ArithmeticLogicUnit.csproj", "{A8CF9FB1-2D0D-41B0-8463-A82B04AA3F21}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeaCucumber", "SeaCucumber\SeaCucumber.csproj", "{FA9BD925-F85A-41ED-94F0-4B4C525BA757}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeaCucumberShuffle", "SeaCucumber\SeaCucumberShuffle.csproj", "{FA9BD925-F85A-41ED-94F0-4B4C525BA757}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
